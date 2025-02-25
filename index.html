@@ -19,17 +19,15 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        input, select, button {
+        input, select {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        button {
-            background: #007bff;
-            color: white;
-            font-size: 16px;
+        label {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -40,6 +38,7 @@
     <form id="bookingForm">
         <label for="date">التاريخ:</label>
         <input type="date" id="date" required>
+        <p id="dayName"></p>
 
         <label for="checkIn">وقت الدخول:</label>
         <input type="time" id="checkIn" required>
@@ -53,17 +52,24 @@
         <label for="price">السعر:</label>
         <input type="text" id="price" readonly>
 
-        <button type="button" onclick="calculatePrice()">احسب السعر</button>
         <button type="submit">إتمام الحجز</button>
     </form>
 
     <script>
+        document.getElementById("date").addEventListener("change", function() {
+            let dateInput = this.value;
+            let date = new Date(dateInput);
+            let days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            let dayName = days[date.getDay()];
+            document.getElementById("dayName").innerText = "اليوم: " + dayName;
+        });
+
         function calculatePrice() {
             let checkIn = document.getElementById("checkIn").value;
             let checkOut = document.getElementById("checkOut").value;
-            
+
             if (!checkIn || !checkOut) {
-                alert("يرجى اختيار وقت الدخول والخروج.");
+                document.getElementById("price").value = "";
                 return;
             }
 
@@ -72,13 +78,16 @@
             let diffHours = (outTime - inTime) / 3600000;
 
             if (diffHours <= 0) {
-                alert("وقت الخروج يجب أن يكون بعد وقت الدخول.");
+                document.getElementById("price").value = "وقت غير صالح";
                 return;
             }
 
             let price = diffHours >= 4 ? 250 : diffHours * 99;
             document.getElementById("price").value = `${price} ريال`;
         }
+
+        document.getElementById("checkIn").addEventListener("change", calculatePrice);
+        document.getElementById("checkOut").addEventListener("change", calculatePrice);
     </script>
 
 </body>
